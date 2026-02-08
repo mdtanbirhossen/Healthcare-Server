@@ -26,6 +26,7 @@ const loadEnvVariables = (): EnvConfig => {
       );
     }
   });
+
   return {
     NODE_ENV: process.env.NODE_ENV as string,
     PORT: process.env.PORT as string,
