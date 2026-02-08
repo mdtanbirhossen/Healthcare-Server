@@ -1,6 +1,8 @@
 import express, { Application, NextFunction, Request, Response } from "express";
 import { IndexRoutes } from "./app/routes";
 import cookieParser from "cookie-parser";
+import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
+import { notFound } from "./app/middleware/notFound";
 
 const app: Application = express();
 
@@ -19,8 +21,7 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Hello, TypeScript + Express!");
 });
 
-app.use()
-
-
+app.use(globalErrorHandler);
+app.use(notFound)
 
 export default app;
