@@ -25,6 +25,30 @@ const getAllSpecialties = catchAsync(async (req: Request, res: Response) => {
     httpStatusCode: 200,
   });
 });
+const getSpecialtyById = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await SpecialtyService.getSpecialtyById(id as string);
+  
+  sendResponse(res, {
+    httpStatusCode: 200,
+    success: true,
+    message: "Specialty fetched successfully",
+    data: result,
+  });
+});
+
+const updateSpecialty = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const payload = req.body;
+  const result = await SpecialtyService.updateSpecialtyById(id as string, payload);
+
+  sendResponse(res, {
+    httpStatusCode: 200,
+    success: true,
+    message: "Specialty updated successfully",
+    data: result,
+  });
+});
 
 const deleteSpecialty = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -42,4 +66,6 @@ export const SpecialtyController = {
   createSpecialty,
   getAllSpecialties,
   deleteSpecialty,
+  getSpecialtyById,
+  updateSpecialty,
 };

@@ -13,6 +13,14 @@ router.post(
 
 router.get("/", SpecialtyController.getAllSpecialties);
 
+router.get("/:id", SpecialtyController.getSpecialtyById);
+
+router.patch(
+    "/:id",
+    checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+    SpecialtyController.updateSpecialty,
+);
+
 router.delete(
     "/:id",
     checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
