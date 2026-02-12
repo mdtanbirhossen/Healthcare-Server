@@ -123,7 +123,42 @@ const loginUser = async (payload: ILoginUser) => {
     };
 };
 
+const getMe = async (userid: string) => {
+    const data = await prisma.user.findUnique({
+        where: {
+            id: userid,
+        },
+        include: {
+            patient: {
+                include: {
+                    appointments: true,
+                    reviews: true,
+                    prescriptions: true,
+                    medicalReports: true,
+                    patientHealthData: true,
+                },
+            },
+            doctor: {
+                include: {
+                    specialties: true,
+                    appointments: true,
+                    reviews: true,
+                    prescriptions: true,
+                },
+            },
+            admin: true,
+        },
+    });
+
+    if (!data) {
+        throw new AppError(status.NOT_FOUND, "User not found");
+    }
+
+    return data;
+};
+
 export const AuthService = {
     registerPatient,
     loginUser,
+    getMe,
 };
