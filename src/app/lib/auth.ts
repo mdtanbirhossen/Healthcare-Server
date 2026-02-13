@@ -43,11 +43,11 @@ export const auth = betterAuth({
     },
 
     session: {
-        expiresIn: 60 * 60 * 60 * 24,
-        updateAge: 60 * 60 * 60 * 24,
+        expiresIn: 1000 * 60 * 60 * 24,
+        updateAge: 1000 * 60 * 60 * 24,
         cookieCache: {
             enabled: true,
-            maxAge: 60 * 60 * 60 * 24, //1d
+            maxAge: 1000 * 60 * 60 * 24, //1d
         },
     },
     //   trustedOrigins: [process.env.BETTER_AUTH_URL || "http://localhost:5000"],
