@@ -16,4 +16,7 @@ router.post(
   UserController.createDoctor,
 );
 
+// todo: create admin
+// todo: create super admin
+
 export const UserRoutes = router;
