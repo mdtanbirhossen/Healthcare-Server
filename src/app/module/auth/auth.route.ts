@@ -20,4 +20,8 @@ router.get(
     AuthController.getMe,
 );
 
+router.get("/login/google", AuthController.loginWithGoogle);
+router.get("/google/success", AuthController.googleLoginSuccess);
+router.get("/oauth/error", AuthController.handleOAuthError);
+
 export const AuthRoutes = router;
