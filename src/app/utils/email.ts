@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import { envVars } from "../../config/env";
+import { envVars } from "../config/env";
 import AppError from "../errorHelpers/AppError";
 import status from "http-status";
 import path from "path";

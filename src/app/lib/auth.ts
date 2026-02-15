@@ -1,25 +1,29 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { prisma } from "./prisma";
-import { Role, UserStatus } from "../../generated/prisma/enums";
 import { bearer, emailOTP } from "better-auth/plugins";
+import { Role, UserStatus } from "../../generated/prisma/enums";
+import { envVars } from "../config/env";
 import { sendEmail } from "../utils/email";
-import { envVars } from "../../config/env";
+import { prisma } from "./prisma";
+// If your Prisma file is located elsewhere, you can change the path
 
 export const auth = betterAuth({
     baseURL: envVars.BETTER_AUTH_URL,
     secret: envVars.BETTER_AUTH_SECRET,
     database: prismaAdapter(prisma, {
-        provider: "postgresql",
+        provider: "postgresql", // or "mysql", "postgresql", ...etc
     }),
+
     emailAndPassword: {
         enabled: true,
         requireEmailVerification: true,
     },
+
     socialProviders: {
         google: {
             clientId: envVars.GOOGLE_CLIENT_ID,
             clientSecret: envVars.GOOGLE_CLIENT_SECRET,
+            // callbackUrl: envVars.GOOGLE_CALLBACK_URL,
             mapProfileToUser: () => {
                 return {
                     role: Role.PATIENT,
@@ -46,21 +50,25 @@ export const auth = betterAuth({
                 required: true,
                 defaultValue: Role.PATIENT,
             },
+
             status: {
                 type: "string",
                 required: true,
                 defaultValue: UserStatus.ACTIVE,
             },
+
             needPasswordChange: {
                 type: "boolean",
                 required: true,
                 defaultValue: false,
             },
+
             isDeleted: {
                 type: "boolean",
                 required: true,
                 defaultValue: false,
             },
+
             deletedAt: {
                 type: "date",
                 required: false,
@@ -68,6 +76,7 @@ export const auth = betterAuth({
             },
         },
     },
+
     plugins: [
         bearer(),
         emailOTP({
@@ -75,8 +84,11 @@ export const auth = betterAuth({
             async sendVerificationOTP({ email, otp, type }) {
                 if (type === "email-verification") {
                     const user = await prisma.user.findUnique({
-                        where: { email },
+                        where: {
+                            email,
+                        },
                     });
+
                     if (user && !user.emailVerified) {
                         sendEmail({
                             to: email,
@@ -90,12 +102,15 @@ export const auth = betterAuth({
                     }
                 } else if (type === "forget-password") {
                     const user = await prisma.user.findUnique({
-                        where: { email },
+                        where: {
+                            email,
+                        },
                     });
+
                     if (user) {
                         sendEmail({
                             to: email,
-                            subject: "Reset your password",
+                            subject: "Password Reset OTP",
                             templateName: "otp",
                             templateData: {
                                 name: user.name,
@@ -105,7 +120,7 @@ export const auth = betterAuth({
                     }
                 }
             },
-            expiresIn: 2 * 60, // 2 minutes
+            expiresIn: 2 * 60, // 2 minutes in seconds
             otpLength: 6,
         }),
     ],
@@ -130,7 +145,7 @@ export const auth = betterAuth({
 
     advanced: {
         // disableCSRFCheck: true,
-        useSecureCookies: true,
+        useSecureCookies: false,
         cookies: {
             state: {
                 attributes: {

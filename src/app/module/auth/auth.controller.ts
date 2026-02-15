@@ -5,7 +5,7 @@ import { sendResponse } from "../../shared/sendResponse";
 import status from "http-status";
 import { tokenUtils } from "../../utils/token";
 import { CookieUtils } from "../../utils/cookie";
-import { envVars } from "../../../config/env";
+import { envVars } from "../../config/env";
 import { auth } from "../../lib/auth";
 
 const registerPatient = catchAsync(async (req: Request, res: Response) => {
@@ -170,10 +170,8 @@ const loginWithGoogle = catchAsync(async (req: Request, res: Response) => {
 
 const googleLoginSuccess = catchAsync(async (req: Request, res: Response) => {
     const redirectPath = (req.query.redirect as string) || "/dashboard";
-    console.log("helllooooooooo");
 
     const sessionToken = req.cookies["better-auth.session_token"];
-    console.log("Session Token:", sessionToken);
     if (!sessionToken) {
         return res.redirect(`${envVars.FRONTEND_URL}/login?error=oauth_failed`);
     }
@@ -183,7 +181,6 @@ const googleLoginSuccess = catchAsync(async (req: Request, res: Response) => {
             Cookie: `better-auth.session_token=${sessionToken}`,
         },
     });
-    console.log(session);
 
     if (!session) {
         return res.redirect(`${envVars.FRONTEND_URL}/login?error=oauth_failed`);

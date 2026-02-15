@@ -5,7 +5,7 @@ import { prisma } from "../../lib/prisma";
 import { UserStatus } from "../../../generated/prisma/enums";
 import { tokenUtils } from "../../utils/token";
 import { jwtUtils } from "../../utils/jwt";
-import { envVars } from "../../../config/env";
+import { envVars } from "../../config/env";
 import { JwtPayload } from "jsonwebtoken";
 import {
     IChangePasswordPayload,
@@ -26,7 +26,6 @@ const registerPatient = async (payload: IRegisterPatientPayload) => {
     if (!data.user) {
         throw new AppError(status.BAD_REQUEST, "Failed to register patient!");
     }
-    console.log(data);
 
     //   TODO: create patient profile in transaction after signup of patient in user model
     try {
@@ -157,7 +156,6 @@ const getMe = async (userid: string) => {
 };
 
 const getNewToken = async (refreshToken: string, sessionToken: string) => {
-    console.log("helloasdfljasdlfjl;asjfl;awejf")
     const isSessionTokenExists = await prisma.session.findUnique({
         where: {
             token: sessionToken,
