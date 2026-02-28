@@ -1,16 +1,17 @@
+import { Response } from "express";
 import { JwtPayload, SignOptions } from "jsonwebtoken";
-import { jwtUtils } from "./jwt";
 import { envVars } from "../config/env";
 import { CookieUtils } from "./cookie";
-import { Response } from "express";
-import ms, { StringValue } from "ms";
+import { jwtUtils } from "./jwt";
 
+//Creating access token
 const getAccessToken = (payload: JwtPayload) => {
     const accessToken = jwtUtils.createToken(
         payload,
         envVars.ACCESS_TOKEN_SECRET,
         { expiresIn: envVars.ACCESS_TOKEN_EXPIRES_IN } as SignOptions,
     );
+
     return accessToken;
 };
 
@@ -29,7 +30,8 @@ const setAccessTokenCookie = (res: Response, token: string) => {
         secure: true,
         sameSite: "none",
         path: "/",
-        maxAge: 1000 * 60 * 60 * 24, // 1d
+        //1 day
+        maxAge: 60 * 60 * 24 * 1000,
     });
 };
 
@@ -39,16 +41,19 @@ const setRefreshTokenCookie = (res: Response, token: string) => {
         secure: true,
         sameSite: "none",
         path: "/",
-        maxAge: 1000 * 60 * 60 * 24 * 7, // 7d
+        //7d
+        maxAge: 60 * 60 * 24 * 1000 * 7,
     });
 };
+
 const setBetterAuthSessionCookie = (res: Response, token: string) => {
     CookieUtils.setCookie(res, "better-auth.session_token", token, {
         httpOnly: true,
         secure: true,
         sameSite: "none",
         path: "/",
-        maxAge: 1000 * 60 * 60 * 24, //1d
+        //1 day
+        maxAge: 60 * 60 * 24 * 1000,
     });
 };
 
