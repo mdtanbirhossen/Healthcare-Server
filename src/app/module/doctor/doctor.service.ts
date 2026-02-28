@@ -5,15 +5,11 @@ import AppError from "../../errorHelpers/AppError";
 import { IQueryParams } from "../../interfaces/query.interface";
 import { prisma } from "../../lib/prisma";
 import { QueryBuilder } from "../../utils/QueryBuilder";
+import { doctorFilterableFields, doctorIncludeConfig, doctorSearchableFields } from "./doctor.constant";
 import { IUpdateDoctorPayload } from "./doctor.interface";
-import {
-    doctorFilterableFields,
-    doctorIncludeConfig,
-    doctorSearchableFields,
-} from "./doctor.constant";
 
 // /doctors?specialty=cardiology&include=doctorSchedules,appointments
-const getAllDoctors = async (query: IQueryParams) => {
+const getAllDoctors = async (query : IQueryParams) => {
     // const doctors = await prisma.doctor.findMany({
     //     where: {
     //         isDeleted: false,
@@ -31,14 +27,14 @@ const getAllDoctors = async (query: IQueryParams) => {
     // // const query = new QueryBuilder().paginate().search().filter();
     // return doctors;
 
-    const queryBuilder = new QueryBuilder<
-        Doctor,
-        Prisma.DoctorWhereInput,
-        Prisma.DoctorInclude
-    >(prisma.doctor, query, {
-        searchableFields: doctorSearchableFields,
-        filterableFields: doctorFilterableFields,
-    });
+    const queryBuilder = new QueryBuilder<Doctor, Prisma.DoctorWhereInput, Prisma.DoctorInclude>(
+        prisma.doctor,
+        query,
+        {
+            searchableFields: doctorSearchableFields,
+            filterableFields: doctorFilterableFields,
+        }
+    )
 
     const result = await queryBuilder
         .search()
@@ -50,9 +46,9 @@ const getAllDoctors = async (query: IQueryParams) => {
             user: true,
             // specialties: true,
             specialties: {
-                include: {
-                    specialty: true,
-                },
+                include:{
+                    specialty: true
+                }
             },
         })
         .dynamicInclude(doctorIncludeConfig)
@@ -61,9 +57,9 @@ const getAllDoctors = async (query: IQueryParams) => {
         .fields()
         .execute();
 
-    console.log(result);
+        console.log(result);
     return result;
-};
+}
 
 const getDoctorById = async (id: string) => {
     const doctor = await prisma.doctor.findUnique({
@@ -75,33 +71,33 @@ const getDoctorById = async (id: string) => {
             user: true,
             specialties: {
                 include: {
-                    specialty: true,
-                },
+                    specialty: true
+                }
             },
             appointments: {
                 include: {
                     patient: true,
                     schedule: true,
                     prescription: true,
-                },
+                }
             },
             doctorSchedules: {
                 include: {
                     schedule: true,
-                },
+                }
             },
-            reviews: true,
-        },
-    });
+            reviews: true
+        }
+    })
     return doctor;
-};
+}
 
 const updateDoctor = async (id: string, payload: IUpdateDoctorPayload) => {
     const isDoctorExist = await prisma.doctor.findUnique({
         where: {
             id,
-        },
-    });
+        }
+    })
 
     if (!isDoctorExist) {
         throw new AppError(status.NOT_FOUND, "Doctor not found");
@@ -117,8 +113,8 @@ const updateDoctor = async (id: string, payload: IUpdateDoctorPayload) => {
                 },
                 data: {
                     ...doctorData,
-                },
-            });
+                }
+            })
         }
 
         if (specialties && specialties.length > 0) {
@@ -130,39 +126,39 @@ const updateDoctor = async (id: string, payload: IUpdateDoctorPayload) => {
                             doctorId_specialtyId: {
                                 doctorId: id,
                                 specialtyId,
-                            },
-                        },
-                    });
+                            }
+                        }
+                    })
                 } else {
                     await tx.doctorSpecialty.upsert({
                         where: {
                             doctorId_specialtyId: {
                                 doctorId: id,
                                 specialtyId,
-                            },
+                            }
                         },
                         create: {
                             doctorId: id,
                             specialtyId,
                         },
-                        update: {},
-                    });
+                        update: {}
+                    })
                 }
             }
         }
-    });
+    })
 
     const doctor = await getDoctorById(id);
 
     return doctor;
-};
+}
 
 //soft delete
 const deleteDoctor = async (id: string) => {
     const isDoctorExist = await prisma.doctor.findUnique({
         where: { id },
-        include: { user: true },
-    });
+        include: { user: true }
+    })
 
     if (!isDoctorExist) {
         throw new AppError(status.NOT_FOUND, "Doctor not found");
@@ -175,32 +171,32 @@ const deleteDoctor = async (id: string) => {
                 isDeleted: true,
                 deletedAt: new Date(),
             },
-        });
+        })
 
         await tx.user.update({
             where: { id: isDoctorExist.userId },
             data: {
                 isDeleted: true,
                 deletedAt: new Date(),
-                status: UserStatus.DELETED, // Optional: you may also want to block the user
+                status: UserStatus.DELETED // Optional: you may also want to block the user
             },
-        });
+        })
 
         await tx.session.deleteMany({
-            where: { userId: isDoctorExist.userId },
-        });
+            where: { userId: isDoctorExist.userId }
+        })
 
         await tx.doctorSpecialty.deleteMany({
-            where: { doctorId: id },
-        });
-    });
+            where: { doctorId: id }
+        })
+    })
 
     return { message: "Doctor deleted successfully" };
-};
+}
 
 export const DoctorService = {
     getAllDoctors,
     getDoctorById,
     updateDoctor,
     deleteDoctor,
-};
+}
