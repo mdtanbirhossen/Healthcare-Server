@@ -1,13 +1,10 @@
-import { Role } from "../../generated/prisma/enums";
+import { IRequestUser } from "./requestUser.interface";
+
 
 declare global {
-    namespace Express {
+    namespace Express{
         interface Request {
-            user: {
-                userId: string;
-                role: Role;
-                email: string;
-            };
+            user : IRequestUser
         }
     }
 }
